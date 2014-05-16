@@ -1,0 +1,1208 @@
+LESSON 6
+
+CREATE A NEW PROJECT
+
+[1] Open a command prompt (terminal window from the top left of screen)
+
+From your "home" directory, use cd (change directory) to the "is450->x#####->class" where ##### is your "xnumber".
+
+Type the following commands at the command prompt (this causes a lot of files to be created):
+
+
+rails new f2
+cd f2
+
+EDIT THE GEMFILE
+
+[2] Now edit the Gemfile in the new project:
+
+
+gedit Gemfile &
+
+Don't forget the "&" on the end!!
+
+[3] Add the following line to the file and save the new version of the Gemfile:
+
+
+gem 'devise','2.0.4'
+
+BACK AT THE COMMAND PROMPT
+
+[4] Re-bundle our application
+
+
+bundle install
+
+[5] install the additional structure that devise provides:
+
+
+rails generate devise:install
+
+[6] now generate the new object for our system the "user"
+
+
+rails generate devise user
+
+[7] make sure all the needed software can be located by bundling our application:
+
+
+rake db:migrate
+
+[8] remove the unneeded default web page:
+
+
+rm public/index.html
+
+CREATE ADDITIONAL CONTROLLERS FOR HOME AND DASHBOARD
+
+[9] create two additional controllers by entering the following lines at the command line:
+
+
+rails g controller home
+rails g controller dashboard
+
+[10] add an index view for each new controller by creating an index.html.erb file in each of the views directories of [/app/views/home/index.html.erb and /app/views/dashboard/index.html.erb]. Be sure to save each file in the correct directory.
+
+For the home index file:
+
+
+<h1>Welcome to summer planning</h1>
+
+For the dashboard index file:
+
+
+<h1>This is the dashboard</h1>
+
+[11] Edit the home controller [app/controllers/dashboard_controller.rb] by adding the following line between the existing ones:
+
+
+before_filter :authenticate_user!
+
+[12] Edit the home controller [app/controllers/home_controller.rb] by adding the following lines between the existing ones:
+
+
+    def index
+    if user_signed_in? 
+        redirect_to :controller => 'dashboard', :action => 'index'
+    end
+    end
+############THIS IS FOR THE TAC#######################
+##create the file: /app/views/tac/index.html.erb
+Add this to the file:
+
+<h1>Welcome tac</h1>
+
+Edit the tac controller:
+app/controllers/tac_controller.rb
+
+before_filter :authenticate_user!
+
+MODIFY THE DEFAULT APPLICATION TEMPLATE
+
+[13] replace the existing code for the file [/app/views/layouts/application.html.erb]
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Devise</title>
+  <%= stylesheet_link_tag    "application", :media => "all" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+<%= yield %>
+<hr />
+<div id='user_nav'>
+<% if user_signed_in? %>
+Signed in as <%= current_user.email %>
+Not you? 
+<%= link_to "sign out", destroy_user_session_path, :method => :delete %>
+<% else %>
+<%= link_to "sign up", new_user_registration_path %>
+or
+<%= link_to "sign in", new_user_session_path %>
+<% end %>
+</div>
+<% flash.each do |name,msg| %>
+<%= content_tag :div, msg, :id => "flash#{name}" %>
+<% end %>
+</body>
+</html>
+
+MODIFY THE ROUTES FILE
+
+[14] add the following two lines to the file [/config/routes.rb] just after the "devise for..." line:
+
+
+resources :dashboard
+root to: "home#index"
+
+RESTART YOUR SERVER AT THE COMMAND PROMPT:
+
+
+rails s 
+
+
+####################################################################################
+
+LESSON 7
+
+ GETTING STARTED BASICS
+
+[1] As usual you need to do a pull from the GIT repository. Select the GIT command window (#2) above.
+
+
+git pull origin master
+
+[2] The devise gem supports making a "copy" of the "view" embedded ruby partial web pages that comprise the way that the application system will respond to the various options available when different options are used with devise (for instance, how the page looks if the user option for emailing a link to the user to get a new password is requested). Devise supports so many different interactions that there is a very elaborate view structure. You can request that the devise view information be added to your views for the application. At the command prompt enter the following:
+
+
+rails g devise:views
+
+[3] You should take a quick look at the file explorer under views (you may have to refresh the file browser to see the change).
+CREATE A NEW TABLE TO DEMO THE SECOND LAW OF DAD
+
+[4] In order to demonstrate the second law of distributed application design (DAD) we have to have a table that has data some of which is owned by different users. We have to make sure that we do not let a user by accident or on purpose take an action against someone else's data. In order to add the new table and update the database schema and SQL definition of data enter the following at the command prompt for your application project:
+
+
+rails g scaffold cadet first:string
+bundle exec rake db:migrate
+rails g scaffold miadslot miadname:string location:string miadstartdate:date miadenddate:date capacity:integer 
+bundle exec rake db:migrate
+rails g scaffold cadethasmiad miadname:string location:string miadstartdate:date miadenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold miadschedule miadstartdate:date miadenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold piadslot team:string location:string piadstartdate:date piadenddate:date capacity:integer 
+bundle exec rake db:migrate
+rails g scaffold cadethaspiad team:string location:string piadstartdate:date piadenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold piadschedule piadstartdate:date piadenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold ctltslot location:string ctltstartdate:date ctltenddate:date branch:string sponsor:string unit:string
+bundle exec rake db:migrate
+rails g scaffold cadethasctlt location:string ctltstartdate:date ctltenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold ctltschedule ctltstartdate:date ctltenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold cldtslot location:string cldtstartdate:date cldtenddate:date cldtcompany:string
+bundle exec rake db:migrate
+rails g scaffold cadethascldt cldtcompany:string cldtstartdate:date cldtenddate:date cadet_id:integer 
+bundle exec rake db:migrate
+rails g scaffold cldtschedule cldtstartdate:date cldtenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold leadershipslot position:string leadershipstartdate:date leadershipenddate:date detail:string   
+bundle exec rake db:migrate
+rails g scaffold cadethasleadership position:string detail:string leadershipstartdate:date leadershipenddate:date detailcompany:string cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold leadershipschedule leadershipstartdate:date leadershipenddate:date cadet_id:integer
+bundle exec rake db:migrate
+rails g scaffold cadetschedule detail:string detailstart:date detailend:date location:string branch:string cadet_id:integer
+bundle exec rake db:migrate
+ 
+
+
+####TO CREATE MULTIPLE USERS USE THIS WEBSITE################################
+http://stackoverflow.com/questions/9472852/devise-and-multiple-user-models
+
+##############Optional################
+##These scaffolds are for the AIAD tables:
+rails g scaffold aiadslot aiadname:string department:string location:string 
+>>>>>>> a01b090cabf3df7c19dff49c2993a3a76984c02f
+bundle exec rake db:migrate
+rails g scaffold cadethasaiad aiadname:string xnumber:string location:string department:string block:string 
+bundle exec rake db:migrate
+rails g scaffold aiadschedule aiadstartdate:date aiadenddate:date xnumber:string
+bundle exec rake db:migrate
+##############End Optional################
+ 
+
+###############Validations##################
+(Users):
+  attr_accessible :email, :password, :password_confirmation, :remember_me
+  validates :email, :uniqueness => true
+  validates :email, :format => {:with => /admin[0-9][0-9]@gmail.com/,
+       :message => "Valid email (admin00@gmail.com)" }
+  validates :email, :format => {:with => /cadet[0-9][0-9]@gmail.com/,
+       :message => "Valid email (cadet00@gmail.com)" }
+  validates :email, :format => {:with => /tac[0-9][0-9]@gmail.com/,
+       :message => "Valid email (tac00@gmail.com)" }
+  validates :email, :format => {:with => /user[0-9][0-9]@gmail.com/,
+       :message => "Valid email (user00@gmail.com)" }
+
+(cadetHasMiad)
+ validates :miadname, :location, :miadstartdate, :miadenddate, :user_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+(cadetHasPiad)
+ validates :team, :location, :piadstartdate, :piadenddate, :cadet_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+(cadetHasCtlt)
+ validates :location, :ctltstartdate, :ctltenddate, :branch, :unit, :cadet_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+(cadetHasCdlt)
+ validates :cldtcompany, :cldtstartdate, :cldtenddate, :cadet_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+(cadetHasLeadership)
+ validates :position, :detail :leadershipstartdate, :leadershipenddate, :cadet_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+(cadetSchedule)
+ validates :training, :detailstart, :detailend, :location, :branch, :user_id, :presence => true
+    validates_numericality_of :user_id, :allow_nil => true, :only_integer => true
+    validates :user_id, :uniqueness => true
+    validates :user_id, :format => { :with => /[0-9][0-9][0-9][0-9][0-9]/,
+        :message => "Valid user_id (12345 or 67890)" }
+
+
+
+RELATE THE NEW OBJECT TO THE EXISTING OBJECTS
+
+[5] When a new object is added to our distributed application one of the first things we have to do is relate the object to the previously existing objects. At present the only model we have already is the "user" object. User objects can have many "miadslot" objects. Since we want all of a user's "miadslot" removed if the user's record is ever deleted (we add the "dependent -> destroy" to the end of the "has many" declaration in the model). The following line of code needs to be added to the user object [app/models/cadet.rb]:
+
+
+has_many :miadslot, :dependent => :destroy
+has_many :piadslot, :dependent => :destroy
+has_many :ctltslot, :dependent => :destroy
+has_many :cldtslot, :dependent => :destroy
+has_many :leadershipslot, :dependent => :destroy
+
+[6] And on the "miadslot" object end, each miadslot belongs to a specific user. The user's id has to be maintained in the miadslot object's attribute (user_id). Add the following line to the miadslot model [/app/models/miadslot.rb]:
+
+
+belongs_to :cadet
+
+CHECK YOUR ROUTES
+
+[6] In the [/config/routes.rb] file a new line will have been added and the top of the file should look like the following:
+
+
+f2::Application.routes.draw do
+  resources :miadslots
+  devise_for :users
+  resources :dashboard
+  root to: "home#index"
+...
+
+PUT IN LINKS BETWEEN PARTS OF THE APPLICATION
+
+[7] The user will need a link to the index of the "miadslot" object. Add the following to [/app/views/dashboard/index.html.erb]:
+
+
+<%= link_to 'Index of cadets', cadets_path %>
+<%= link_to 'Index of miadslots', miadslots_path %>
+<%= link_to 'Index of piadslots', piadslots_path %>
+<%= link_to 'Index of ctltslots', ctltslots_path %>
+<%= link_to 'Index of cldtslots', cldtslots_path %>
+<%= link_to 'Index of leadershipslots', leadershipslots_path %>
+
+Since we don't have a lot of other pages this may be all the links we need to add. Some of the views for "miadslot" could have such a link added or the [app/views/layouts/application.html.erb] could be modified to provide the link to all view renderings.
+AVOIDING CONFUSION BY MODIFYING VIEW DISPLAYS
+
+[8] We have to remove the display of information associated with "user_id" in each "miadslot" view file that renders that information. The file [/app/views/miadslots/_form.html.erb] has to have the display of the "user_id" field "commented out" in the file. The entire file should look like the following:
+
+
+<%= form_for(@miadslot) do |f| %>
+  <% if @miadslot.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@miadslot.errors.count, "error") %> prohibited this miadslot from being saved:</h2>
+      <ul>
+      <% @miadslot.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="field">
+    <%= f.label :descrip %><br />
+    <%= f.text_field :descrip %>
+  </div>
+  <!-- div class="field">
+    <%#= f.label :user_id %><br />
+    <%#= f.number_field :user_id %>
+  </div -->
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+[9] The index view [/app/views/miadslots/index.html.erb] needs to have one line of the code "commented out". The line that displays the "user_id" can be commented out and will look like the following (around line 13):
+
+
+<!--
+    <td><%#= miadslot.user_id %></td>
+-->
+
+[10] Likewise the show view [/app/views/miadslots/show.html.erb] needs to have some code commented out. Lines 6 to 9 should look like the following:
+
+
+<!-- p>
+  <b>User:</b>
+  <%#= @miadslot.user_id %>
+</p -->
+
+APPLYING THE SECOND LAW OF DISTRIBUTED APPLICATION DESIGN (DAD)
+
+[11] A number of changes are needed in almost all entry points of the "miadslots_controller" [app/controllers/miadslots_controller.rb]. The following has a complete new version of the controller (104 lines of code). Each entry point has been augmented to check to make sure that action being requested is for an object that the specific user actually owns. The code avoids providing the user with "clickable" links that request an action against data that is not the user's. Beyond this the controller code also checks to make sure the user is not attempting to "spoof" the RESTful request form (for example requesting an action that would edit someone else's record). Note: the entry points for the controller are: index (4), show (13), new (30), edit (38), create (51), update (66), and destroy (88). You may notice that many of the "end" statements have had a comment added that indicates which preceding block statement (such as "do" or "if" etc.) is being closed. This controller has had a lot of code added (and it does not really follow the "fat model, skinny controller" strategy) so the commenting is being used to assure proper structural form in the code.
+
+
+class miadslotsController < ApplicationController
+  # GET /miadslots
+  # GET /miadslots.json
+  def index
+    @miadslots = miadslot.where("user_id = ?", current_user.id).all
+    respond_to do |format|
+      format.html # index.html.erb
+      format.json { render json: @miadslots }
+    end
+  end
+  # GET /miadslots/1
+  # GET /miadslots/1.json
+  def show
+    @miadslot = miadslot.find(params[:id])
+        # make sure user "owns" the record
+    if @miadslot.user_id == current_user.id
+          respond_to do |format|
+            format.html # show.html.erb
+            format.json { render json: @miadslot }
+          end # end do
+        else # user does not own the data
+         respond_to do |format|
+          format.html {redirect_to miadslots_url, :notice => 'Sorry, that is not miadslot!'}
+          format.json { head :no_content }
+         end # end respond_to do
+        end # if else block
+  end # show def
+  # GET /miadslots/new
+  # GET /miadslots/new.json
+  def new
+    @miadslot = miadslot.new
+    respond_to do |format|
+      format.html # new.html.erb
+      format.json { render json: @miadslot }
+    end
+  end # new def
+  # GET /miadslots/1/edit
+  def edit
+    @miadslot = miadslot.find(params[:id])
+        # make sure user "owns" the record
+    if @miadslot.user_id != current_user.id
+            # user does not own the data
+         respond_to do |format|
+          format.html {redirect_to miadslots_url, :notice => 'Sorry, that is not miadslot!'}
+          format.json { head :no_content }
+         end # end respond_to do
+        end # if block
+  end
+  # POST /miadslots
+  # POST /miadslots.json
+  def create
+    @miadslot = miadslot.new(params[:miadslot])
+    @miadslot.user_id = current_user.id
+    respond_to do |format|
+      if @miadslot.save
+        format.html { redirect_to @miadslot, notice: 'miadslot was successfully created.' }
+        format.json { render json: @miadslot, status: :created, location: @miadslot }
+      else
+        format.html { render action: "new" }
+        format.json { render json: @miadslot.errors, status: :unprocessable_entity }
+      end # if else block
+    end # respond_to
+  end # create def
+  # PUT /miadslots/1
+  # PUT /miadslots/1.json
+  def update
+    @miadslot = miadslot.find(params[:id])
+        # make sure user "owns" the record
+    if @miadslot.user_id == current_user.id
+    respond_to do |format|
+      if @miadslot.update_attributes(params[:miadslot])
+        format.html { redirect_to @miadslot, notice: 'miadslot was successfully updated.' }
+        format.json { head :no_content }
+      else
+        format.html { render action: "edit" }
+        format.json { render json: @miadslot.errors, status: :unprocessable_entity }
+      end
+    end # respond_to
+        else # user does not own the data
+         respond_to do |format|
+          format.html {redirect_to miadslots_url, :notice => 'Sorry, that is not miadslot!'}
+          format.json { head :no_content }
+         end # end respond_to do
+        end # if else block
+  end # update def
+  # DELETE /miadslots/1
+  # DELETE /miadslots/1.json
+  def destroy
+    @miadslot = miadslot.find(params[:id])
+        # make sure user "owns" the record
+    if @miadslot.user_id == current_user.id
+        @miadslot.destroy
+          respond_to do |format|
+            format.html { redirect_to miadslots_url }
+            format.json { head :no_content }
+          end # of respond_to
+        else # user does not own the data
+         respond_to do |format|
+          format.html {redirect_to miadslots_url, :notice => 'Sorry, that is not miadslot!'}
+          format.json { head :no_content }
+         end # end respond_to do
+        end # if else block
+  end # of destroy definition
+end #of miadslots controller
+
+
+###################################################################################
+
+LESSON 14
+
+In addition to the existing object classes (at present user and miadslots) we will need several new ones: ability, assignment and role.
+
+Why do we need these tables of data? What are their relationships?
+
+Assignment will have relations for "belongs_to :role" and "belongs_to :user"
+
+Role will have "has_many :assignments" and "has_many :users, :through => :assignments"
+
+In addition to the extra "devise" data the User will have "has_many :assignments" and "has_many :roles, :through => :assignments"
+INSTALL CANCAN
+
+[2] First, get the 'cancan' gem installed. To do this open up the Gemfile in the project root, and add the following line:
+
+
+gem 'cancan', '1.6.7'
+
+The gem references you should have are as follows:
+
+
+gem 'rails', '3.2.8'
+gem 'sqlite3', '1.3.6'
+gem 'devise', '2.0.4'
+gem 'cancan', '1.6.7'
+
+[3] Save the file and at the command line prompt in the terminal window run the following:
+
+
+bundle exec bundle install
+rails generate cancan:ability
+
+ADDING NEEDED SCAFFOLDS
+
+[4] From the prior class we discussed the need for some additional databases to track information that is needed to manage users running any application. We need scaffolds for roles, and assignments. After we have that done we do a rake db migrate.
+
+
+rails g scaffold role name:string
+rails g scaffold assignment role_id:integer user_id:integer
+bundle exec rake db:migrate
+
+MODIFY DATA MODEL DEFINITIONS
+
+[5] For the user model (app/models/user.rb) make sure the following lines are within the file:
+
+
+has_many :assignments
+has_many :roles, :through => :assignments
+has_many :cadets, :dependent => :destroy
+has_many :tacs, :dependent => :destroy
+
+Why is the final "has_many" included? [6] Since the 'role?' method does not exist yet in user, we need to create it and have it return the role name. This will allow us to determine if a user has a specified role. So also add the following before the last end statement:
+
+
+def role?(role)
+    return !!self.roles.find_by_name(role)
+end
+
+[7] The (app/models/user.rb) file should look like the following after the preceding changes have been made:
+
+
+class User < ActiveRecord::Base
+  has_many :assignments
+  has_many :roles, :through => :assignments
+  has_many :cadets, :dependent => :destroy
+  has_many :tacs, :dependent => :destroy
+  # Include default devise modules. Others available are:
+  # :token_authenticatable, :confirmable, :lockable and :timeoutable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable
+#, :confirmable
+  # Setup accessible (or protected) attributes for your model
+  attr_accessible :email, :password, :password_confirmation, :remember_me
+#   Should the user's id be accessible too?  It is needed to retain "ownership"
+#   of the cadet data by the user who entered it.  
+  def role?(role)
+    return !!self.roles.find_by_name(role)
+  end
+end
+
+[8] For the role (app/models/role.rb) make sure the following lines are within the file:
+
+
+has_many :assignments
+has_many :users, :through => :assignments
+
+[9] For the assignment (app/models/assignment.rb) make sure the following lines are within the file:
+
+
+belongs_to :role
+belongs_to :user
+
+[10] For the ability (app/models/ability.rb) make sure the following lines are within the file. This code is actually the set of rules that will be evaluated when the "cancan" "can" function is evaluated. Can you tell what user roles are being evaluated?
+
+
+class Ability
+ include CanCan::Ability
+ def initialize(user)
+   user ||= User.new #guest user
+   can :read, :all
+    if user.role? "admin"
+        can :manage, :all
+    elsif user.role? "tac"
+        can :manage, :all
+   elsif user.role? "cadet"
+    can :read, :all
+   end
+ end
+end
+
+CHANGING SOME VIEWS
+
+[11] Here is a new version of the application web page (app/views/layouts/application.html.erb)
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>F2</title>
+  <%= stylesheet_link_tag :all %>
+  <%= javascript_include_tag :defaults %>
+  <%= csrf_meta_tag %>
+</head>
+<body>
+<h2>F2 with role based access</h2>
+<%= yield %>
+<div id="user_nav">
+    <% if user_signed_in? %>
+        Signed in as <%= current_user.email %>. Not you?
+        <%= link_to "Sign out", destroy_user_session_path %>
+        <br /><hr />
+        <%= link_to 'go to roles', roles_path %> 
+        | <%= link_to 'go to assignments', assignments_path %> 
+        | <%= link_to 'go to miadslots', miadslots_path %> 
+        | <%= link_to 'go to edit current user', edit_user_registration_path %> 
+    <% else %>
+        <%= link_to "Sign up", new_user_registration_path %> or <%= link_to "sign in" , new_user_session_path %>
+    <% end %>
+</div>
+</body>
+</html>
+
+[12] For the views/assignments/index.html.erb
+
+
+<h1>Listing assignments</h1>
+<table>
+  <tr>
+    <th>Role</th>
+    <th>User</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% @assignments.each do |assignment| %>
+  <tr>
+    <td><%= assignment.role.name %></td>
+    <td><%= assignment.user.email %></td>
+    <td><%= link_to 'Show', assignment %></td>
+    <% if (can? :manage, :assignments) %>
+        <td><%= link_to 'Edit', edit_assignment_path(assignment) %></td>
+        <td><%= link_to 'Destroy', assignment, :confirm => 'Are you sure?', :method => :delete %></td>
+    <% end %>
+    </tr>
+<% end %>
+</table>
+<br />
+<% if (can? :manage, :assignments) %>
+<%= link_to 'New Assignment', new_assignment_path %>
+<% end %>
+
+[13] For the views/assignments/_form.html.erb
+
+
+<%= form_for(@assignment) do |f| %>
+  <% if @assignment.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@assignment.errors.count, "error") %> prohibited this assignment from being saved:</h2>
+      <ul>
+      <% @assignment.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+  Select Role: <%= f.collection_select( :role_id, Role.all, :id, :name, options ={:prompt => "Select a role"}) %>
+  </p>
+  <p>
+   Select a User:   <%= f.collection_select( :user_id, User.all, :id, :email, options ={:prompt => "Select a user"}) %>
+  </p>
+  <p><%= f.submit %></p>
+<% end %>
+
+ALMOST HOME (DON'T GIVE UP HOPE)
+
+[14] We only have a couple of actions we need to take. Open the routes file [config/routes.rb]. The beginning of the file should look like the following:
+
+
+Devise141::Application.routes.draw do
+  resources :assignments
+  resources :roles
+  resources :miadslots
+  devise_for :users
+  resources :dashboard
+  root to: "home#index"
+end
+
+[15] The software has to be "bundled" and we have to import initial content for the application. At the command prompt for your project:
+
+
+bundle exec bundle install
+cd db
+sqlite3 development.sqlite3 < db.sql
+
+USING THE MODIFIED APPLICATION
+
+You will need at least four sign-on entries (one each for 'admin', 'developer' roles, and two for the 'clerk' roles). You will find it is easiest to make the sign-ons match the role you want to assign them (maybe 'admin1@test.com', 'developer1@test.com', 'clerk1@test.com' and clerk2@test.com'). You should use the same password for each. 
+
+########################################################################################
+
+LESSON 15
+
+INSTALL CANCAN
+
+First, get the 'cancan' gem installed. To do this open up the Gemfile in the project root, and add the following line:
+
+
+gem 'cancan', '1.6.7'
+
+Make sure the gem references in this file have the "version" specified as follows:
+
+
+gem 'rails', '3.2.8'
+gem 'sqlite3','1.3.6'
+gem 'devise', '2.0.4'
+gem 'cancan', '1.6.7'
+
+Save the file and at the command line run the following:
+
+
+bundle install
+rails generate cancan:ability
+
+ADDING NEEDED SCAFFOLDS
+
+From the prior class we discussed the need for some additional databases to track information that is needed to manage users running any application. We need scaffolds for role, assignment and we need to add an additional field existing "miadslot" class (to support "ownership" when accessing the miadslot data). After we have that done we do a rake db migrate (from the command prompt):
+
+
+rails g scaffold role name:string
+rails g scaffold assignment role_id:integer user_id:integer
+rails g migration AddUser_idToMiadslot user_id:integer
+rake db:migrate
+
+FILES TO BE MODIFIED
+
+
+app/controllers/miadslots_controller.rb [0]
+app/models/miadslot.rb [1]
+app/models/user.rb [2]
+app/models/role.rb [3]
+app/models/assignment.rb [4]
+app/models/ability.rb [5]
+app/views/layouts/application.html.erb [6]
+views/miadslots/index.html.erb [7]
+views/assignments/index.html.erb [8]
+views/assignments/_form.html.erb [9]
+
+A MINOR ADDITION TO THE miadslots CONTROLLER
+
+[0] In order to save the id of the current user who is creating a miadslot's information (in order to be able to know who "owns" a specific miadslot's record) we need to save the id value. This can be done by adding the following line of code to the miadslots controller in the 'create' method (at around line 52). The line preceding this should be @miadslot = miadslot.new(params[:miadslot]) :
+
+
+    @miadslot.user_id = current_user.id
+
+MODIFY DATA MODELS
+
+[1] As is usually the case we have to modify the existing data models to reflect some of the constraints we need our implementation to maintain. For the miadslot model [app/models/miadslot.rb] add the following line within the file:
+
+
+belongs_to :user
+
+[2] For the user model [app/models/user.rb] make sure the following lines are within the file:
+
+
+has_many :assignments
+has_many :roles, :through => :assignments
+has_many :miadslots, :dependent => :destroy
+
+Why is the final "has_many" included? Since the 'role?' method does not exist yet in user, we need to create it and have it return the role name. This will allow us to determine if a user has a specified role. So also add the following before the last end statement:
+
+
+def role?(role)
+    return !!self.roles.find_by_name(role)
+end
+
+The [app/models/user.rb] file should look like the following after the preceding changes have been made:
+
+
+class User < ActiveRecord::Base
+  has_many :assignments
+  has_many :roles, :through =>; :assignments
+  has_many :miadslots, :dependent => :destroy
+  # Include default devise modules. Others available are:
+  # :token_authenticatable, :confirmable, :lockable and :timeoutable
+  devise :database_authenticatable, :registerable,
+         :recoverable, :rememberable, :trackable, :validatable
+  #, :confirmable
+  # Setup accessible (or protected) attributes for your model
+  attr_accessible :email, :password, :password_confirmation, :remember_me
+  #   Should the user's id be accessible too?  It is needed to retain "ownership"
+  #   of the miadslot data by the user who entered it.  
+  def role?(role)
+    return !!self.roles.find_by_name(role)
+  end
+end
+
+[3] For the role [app/models/role.rb] make sure the following lines are within the file:
+
+
+has_many :assignments
+has_many :users, :through => :assignments
+
+[4] For the assignment [app/models/assignment.rb] make sure the following lines are within the file:
+
+
+belongs_to :role
+belongs_to :user
+
+[5] For the ability [app/models/ability.rb] make sure the following lines are within the file:
+
+
+class Ability
+ include CanCan::Ability
+ def initialize(user)
+   user ||= User.new #guest user
+   can :read, :all
+    if user.role? "admin"
+        can :manage, :all
+    elsif user.role? "tac"
+        can :manage, :all
+   elsif user.role? "cadet"
+    can :read, :all
+   end
+ end
+end
+
+
+CHANGING SOME VIEWS
+
+[6] Here is a new version of the application web page [app/views/layouts/application.html.erb]
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>F2</title>
+  <%= stylesheet_link_tag :all %>
+  <%= javascript_include_tag :application %>
+  <%= csrf_meta_tag %>
+</head>
+<body>
+<h2>F2 with role based access</h2>
+<%= yield %>
+<div id="user_nav">
+    <% if user_signed_in? %>
+        Signed in as <%= current_user.email %>. Not you?
+        <%= link_to "sign out", destroy_user_session_path, :method => :delete %>
+        <br /><hr />
+        | <%= link_to 'Go to roles', roles_path %>
+	| <%= link_to 'Go to edit current user', edit_user_registration_path %>
+	<br /><hr /> 
+        | <%= link_to 'Go to current assignments', assignments_path %> 
+        | <%= link_to 'Go to current miadslots', miadslots_path %> 
+	| <%= link_to 'Go to current piadslots', piadslots_path %> 
+	| <%= link_to 'Go to current ctltslots', ctltslots_path %> 
+	| <%= link_to 'Go to current cldtblocks', cldtblocks_path %> 
+	| <%= link_to 'Go to current leadershipslots', leadershipslots_path %> 
+        <br /><hr />
+        | <%= link_to 'Assign cadet CLTD', cadethascldts_path %>
+        | <%= link_to 'Assign cadet CTLT', cadethasctlts_path %>
+        | <%= link_to 'Assign cadet leadership', cadethasleaderships_path %>
+        | <%= link_to 'Assign cadet a MIAD', cadethasmiads_path %>
+        | <%= link_to 'Assign cadet a PIAD', cadethaspiads_path %>
+        | <%= link_to 'View current cadets summer schedule', cadetschedules_path %>
+         
+    <% else %>
+        <%= link_to "Sign up", new_user_registration_path %> or <%= link_to "sign in" , new_user_session_path %>
+    <% end %>
+</div>
+</body>
+</html>
+
+[7] For the [app/views/miadslots/index.html.erb]
+
+
+<h1>Listing miadslots</h1>
+<table>
+  <tr>
+    <th>Descript</th>
+    <th>User</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% @miadslots.each do |miadslot| %>
+  <tr>
+    <td><%= miadslot.descript %></td>
+    
+    <td><%= link_to 'Show', miadslot %></td>
+    <% if (user_signed_in?) %>
+      <% if ((can? :update, :miadslots) and (miadslot.user_id == current_user.id)) %>
+      <td><%= link_to "Edit", edit_miadslot_path(miadslot) %></td>
+      <td><%= link_to "Destroy", miadslot, :confirm => 'Are you sure?', :method => :delete %></td>
+      <% end %>
+    <% end %>
+    </tr>
+  <% end %>
+</table>
+ <% if (can? :manage, :miadslots) %>
+  <p><%= link_to "New MIADslot", new_miadslot_path %></p>
+<% end %>
+
+YOU SHOULD STOP AND RUN THE SERVER NOW. CREATE AN ADMIN SIGN-ON. ASSIGN THE ADMIN SIGN-ON THE ADMIN ROLE!! Once you have completed steps 8 and 9 you won't be able to create assigned roles or add to the role database. We could have used the rake seed command to set the value in the database for the roles initially.
+
+[8] For the [app/views/assignments/index.html.erb]
+
+
+<h1>Listing assignments</h1>
+<table>
+  <tr>
+    <th>Role</th>
+    <th>User</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% @assignments.each do |assignment| %>
+  <tr>
+    <td><%= assignment.role.name %></td>
+    <td><%= assignment.user.email %></td>
+    <td><%= link_to 'Show', assignment %></td>
+    <% if (can? :manage, :assignments) %>
+        <td><%= link_to 'Edit', edit_assignment_path(assignment) %></td>
+        <td><%= link_to 'Destroy', assignment, :confirm => 'Are you sure?', :method => :delete %></td>
+    <% end %>
+    </tr>
+<% end %>
+</table>
+<br />
+<% if (can? :manage, :assignments) %>
+<%= link_to 'New Assignment', new_assignment_path %>
+<% end %>
+
+[9] For the [app/views/assignments/_form.html.erb]
+
+
+<%= form_for(@assignment) do |f| %>
+  <% if @assignment.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@assignment.errors.count, "error") %> prohibited this assignment from being saved:</h2>
+      <ul>
+      <% @assignment.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+  Select Role: <%= f.collection_select( :role_id, Role.all, :id, :name, options ={:prompt => "Select a role"}) %>
+  </p>
+  <p>
+   Select a User:   <%= f.collection_select( :user_id, User.all, :id, :email, options ={:prompt => "Select a user"}) %>
+  </p>
+  <p><%= f.submit %></p>
+<% end %>
+
+USING THE MODIFIED APPLICATION
+
+You will need at least four sign-on entries (one each for 'admin', 'developer' roles, and two for the 'clerk' roles). You will find it is easiest to make the sign-ons match the role you want to assign them (maybe 'admin1@test.com', 'developer1@test.com', 'clerk1@test.com' and clerk2@test.com'). You should use the same password for each. 
+
+
+################SEED FILE FOR USERS AND MISC TABLE ENTRIES###############################
+# This file should contain all the record creation needed to seed the database with its default values.
+# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
+#
+# Examples:
+#
+#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
+#   Mayor.create(name: 'Emanuel', city: cities.first)
+
+
+roles = Role.create([{ name: 'admin' }, { name: 'cadet' }, { name: 'tac' }])
+User.create(email:'admin01@gmail.com', password: 'cisco123', password_confirmation: 'cisco123')
+User.create(email:'cadet01@gmail.com', password: 'cisco123', password_confirmation: 'cisco123')
+User.create(email:'tac01@gmail.com', password: 'cisco123', password_confirmation: 'cisco123')
+Assignment.create(role_id: '1', user_id: '1')
+Assignment.create(role_id: '2', user_id: '2')
+Assignment.create(role_id: '3', user_id: '3')
+
+Miadslot.create(miadname:'ABN1', location:'Ft. Benning', block: 1, capacity:75)
+Miadslot.create(miadname:'ABN2', location: 'Ft. Benning', block: 2, capacity:85)
+Miadslot.create(miadname:'AASLT1', location: 'Ft. Drum', block: 3, capacity:250)
+Piadslot.create(team:'Soccer', location: 'West Point, NY', block: 3, capacity:50)
+Piadslot.create(team:'Baseball', location: 'West Point, NY', block: 3, capacity:50)
+Piadslot.create(team:'Basketball', location: 'West Point, NY', block: 3, capacity:50)
+Leadershipslot.create(position:'SGT', block: 1, detail:'CBT1')
+Leadershipslot.create(position:'CO', block: 2, detail:'CFT2')
+Leadershipslot.create(position:'1SG', block: 2, detail:'CFT2')
+Ctltslot.create(ctltname:'signal', location: 'Ft. Lewis', block: 1, branch:'signal', sponsor:'LT. Bob')
+Ctltslot.create(ctltname:'scout calvary', location: 'Ft. Drum', block: 2, branch:'armor', sponsor:'LT. Spenser')
+Ctltslot.create(ctltname:'1st ID', location: 'Ft. Carson', block: 3, branch:'infantry', sponsor:'LT Rickard')
+Cldtblock.create(location:'West Point, NY', block: 1, cldtcompany:'E')
+Cldtblock.create(location:'West Point, NY', block: 1, cldtcompany:'A')
+Cldtblock.create(location:'West Point, NY', block: 1, cldtcompany:'B')
+
+#  You will need at least four sign-on entries (one each for 'admin', 'developer' roles and users table, and
+# two for the 'clerk' roles). You will find it is easiest to make the sign-ons match the role you want to
+# assign them (maybe 'admin1@test.com', 'developer1@test.com', 'clerk1@test.com' and clerk2@test.com'). You
+# should use the same password for each. 
+
+#####TO CREATE DROP DOWN MENUS###########
+1. Link the two prospective tables together. EXAMPLE GIVEN ON LESSON 4 on CS450 Site. 
+2. Then do this in the _form.index.erb file of the prospective place where you want to place the drop down:
+(Example code shown:)
+
+<%= form_for(@cadethascldt) do |f| %>
+  <% if @cadethascldt.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@cadethascldt.errors.count, "error") %> prohibited this cadethascldt from being saved:</h2>
+
+      <ul>
+      <% @cadethascldt.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+#####################THIS PART IS THE DROP DOWN########################################
+  <div class="field">
+    <%= f.label :cadets %><br /> ###NOTICE HOW THE f.label LINKS TO THE :cadets TABLE. 
+    <%= f.collection_select(:xnumber, Cadet.all, :id, :firstname) %> ##########Notice the Cadet.all field to grab all cadets.
+  </div>
+####################END OF DROPDOWN#####################################################
+  <div class="field">
+    <%= f.label :cldtcompany %><br />
+    <%= f.text_field :cldtcompany %>
+  </div>
+  <div class="field">
+    <%= f.label :block %><br />
+    <%= f.text_field :block %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+################AND HERE IS THE PROPER WAY TO GRAB FROM THE USER TABLE FOR CREATING CADETS###################
+################FOLLOW THE CODE##############################################################################
+<%= form_for(@cadet) do |f| %>
+  <% if @cadet.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@cadet.errors.count, "error") %> prohibited this cadet from being saved:</h2>
+
+      <ul>
+      <% @cadet.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :user_id %><br />
+    <%= f.number_field :user_id %>
+  </div>
+######################LOOK AT IT!!! JUST LOOK AT IT!!!! THIS IS WHERE YOU CREATE THE DROP DOWN FOR USERS#############
+  <div class="field">
+    <%= f.label :users %><br />####NOTICE HOW IT REFERENCES THE :user TABLE
+    <%= f.collection_select(:firstname, User.all, :id, :email) %> #####Just like above, but this time it displays the email#
+  </div>
+###################END OF DROPDOWN###################################################################################
+  <div class="field">
+    <%= f.label :lastname %><br />
+    <%= f.text_field :lastname %>
+  </div>
+  <div class="field">
+    <%= f.label :xnumber %><br />
+    <%= f.text_field :xnumber %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+
+
+####################FOR ROLE BASED ACCESS DO THE FOLLOWING#########################
+1. Before all of the below, create roles and users with the seed file. 
+
+
+
+1. Alter the ability.rb file based on roles: (SEE EXAMPLE)
+/app/models/ability.rb
+
+class Ability
+ include CanCan::Ability
+ def initialize(user)
+   user ||= User.new #guest user
+   can :read, :all
+    if user.role? "admin"
+        can :manage, :all
+    elsif user.role? "tac"
+        can :manage, :all
+   elsif user.role? "cadet"
+    can :read, :all
+   end
+ end
+end
+
+2. Alter the view files using an 'if statement'. (SEE EXAMPLE):
+views/layouts/application.html.erb file. 
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>F2</title>
+  <%= stylesheet_link_tag :all %>
+  <%= javascript_include_tag :application %>
+  <%= csrf_meta_tag %>
+</head>
+<body>
+<h2>F2 with role based access</h2>
+<%= yield %>
+<div id="user_nav">
+    <% if user_signed_in? %>
+        Signed in as <%= current_user.email %>. Not you?
+        <%= link_to "sign out", destroy_user_session_path, :method => :delete %>
+        <br /><hr />
+        | <%= link_to 'Go to roles', roles_path %>
+	| <%= link_to 'Go to edit current user', edit_user_registration_path %>
+	<br /><hr /> 
+        | <%= link_to 'Go to current assignments', assignments_path %> 
+        | <%= link_to 'Go to current miadslots', miadslots_path %> 
+	| <%= link_to 'Go to current piadslots', piadslots_path %> 
+	| <%= link_to 'Go to current ctltslots', ctltslots_path %> 
+	| <%= link_to 'Go to current cldtblocks', cldtblocks_path %> 
+	| <%= link_to 'Go to current leadershipslots', leadershipslots_path %> 
+        <% if (can? :manage, :all) %>
+        <br /><hr />
+        | <%= link_to 'View cadet cldt', cadethascldts_path %>
+        | <%= link_to 'Assign cadet CTLT', cadethasctlts_path %>
+        | <%= link_to 'Assign cadet leadership', cadethasleaderships_path %>
+        | <%= link_to 'Assign cadet a MIAD', cadethasmiads_path %>
+        | <%= link_to 'Make a Cadet', cadets_path %>
+        | <%= link_to 'View current cadets summer schedule', cadetschedules_path %>
+        <% end %>
+         
+    <% else %>
+        <%= link_to "Sign up", new_user_registration_path %> or <%= link_to "sign in" , new_user_session_path %>
+    <% end %>
+</div>
+</body>
+</html>
+
+###############TO LIMIT CURRENT VIEW OF RECORDS TO ONLY THE CURRENT LOGGED IN USER USE THE FOLLOWING HTML EXAMPLE######
+###############NOTE THE IF STATEMENT###################################################################################
+###############BELOW ARE TWO DIFFERENT EXAMPLES########################################################################
+
+###EXAMPLE1###############################
+<h1>Listing cadethasmiads</h1>
+
+<table>
+  <tr>
+    <th>Miadname</th>
+    <th>Location</th>
+    <th>Miadstartdate</th>
+    <th>Miadenddate</th>
+    <th>Cadet</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @cadethasmiads.each do |cadethasmiad| %>
+  <tr>
+####THIS LIMITS THE USER TO ONLY VIEW THEIR OWN PERSONAL RECORD##################################################
+  <% if user_signed_in? && (cadethasmiad.cadet_id == current_user.id) %>
+    <td><%= cadethasmiad.miadname %></td>
+    <td><%= cadethasmiad.location %></td>
+    <td><%= cadethasmiad.miadstartdate %></td>
+    <td><%= cadethasmiad.miadenddate %></td>
+    <td><%= cadethasmiad.cadet_id %></td>
+    <td><%= link_to 'Show', cadethasmiad %></td>
+    <% if (can? :manage, :all) %>
+    <td><%= link_to 'Edit', edit_cadethasmiad_path(cadethasmiad) %></td>
+    <td><%= link_to 'Destroy', cadethasmiad, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  <% end %>
+  <% end %>
+  </tr>
+<% end %>
+</table>
+
+<br />
+<% if (can? :manage, :all) %>
+<%= link_to 'New Cadethasmiad', new_cadethasmiad_path %>
+<% end %>
+###EXAMPLE1 END######################################
+
+###EXAMPLE2 START#######################################
+<h1>Listing assignments</h1>
+
+<table>
+  <tr>
+    <th>Role</th>
+    <th>User</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @assignments.each do |assignment| %>
+<% if user_signed_in? && (assignment.user_id == current_user.id) %>
+  <tr>
+    <td><%= assignment.role.name %></td>
+    <td><%= assignment.user.email %></td>
+    <td><%= link_to 'Show', assignment %></td>
+    <td><%= link_to 'Edit', edit_assignment_path(assignment) %></td>
+    <td><%= link_to 'Destroy', assignment, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Assignment', new_assignment_path %>
+###EXAMPLE2 END#########################################
+
